@@ -16,8 +16,8 @@
  *    realizado por Hugo Escalpelo (28-julio-2021), que se
  *    encuentra en el REPOSITORIO (GitHub) de Codigo IoT
  * 
- * 2. Este programa envía controla el encendido y apagado de
- *    3 leds conectados a la tarjeta ESP32 en los siguientes
+ * 2. Este programa controla el encendido y apagado de
+ *    4 leds conectados a la tarjeta ESP32 en los siguientes
  *    pines: 
  * 
  *    Componente      PinESP32CAM       Estados lógicos
@@ -46,8 +46,7 @@
 /**********************************
  *    Declaracion de VARIABLES
  * *******************************/
-long timeNow, timeLast;   // Variables de control de tiempo no bloqueante
-int wait = 5000;          // Espera cada 5 segundos para envío de mensajes MQTT
+long timeNow;       // Variables de control de tiempo no bloqueante
 
 /**********************************
  *    Declaracion de pines - LED
@@ -58,10 +57,10 @@ int wait = 5000;          // Espera cada 5 segundos para envío de mensajes MQTT
  *    GPIO14 <- led_5_seg
  *    GPIO15 <- led_7_seg
  * *******************************/
-int num_LEDs = 4;
-int pin_LED[] = {12, 13, 14, 15};
-int wait_LED[] = {1000, 3000, 5000, 7000};
-long timeLast_LED[4];
+int num_LEDs = 4;                           // Número de LEDs = 4 LEDs
+int pin_LED[] = {12, 13, 14, 15};           // Arreglo de pines del ESP32 para conexión de los LEDs
+int wait_LED[] = {1000, 3000, 5000, 7000};  // Arreglo "wait" de encendido/apagado para cada LED
+long timeLast_LED[4];                       // Arreglo de "timeLast" para cada LED
 
 /* ********************************************************************
  *  
@@ -76,12 +75,10 @@ void setup() {
    *               Inicializacion de LED's 
    * ------------------------------------------------------*/
   for ( int i = 0; i < num_LEDs; ++i ) {
-    pinMode (pin_LED[i], OUTPUT);
-    digitalWrite (pin_LED[i], LOW);
-    timeLast_LED[i] =  millis();
+    pinMode (pin_LED[i], OUTPUT);     // pines de SALIDA
+    digitalWrite (pin_LED[i], LOW);   // Se apagan todos los LEDs
+    timeLast_LED[i] =  millis();      // Se actualiza "timeLast" para cada LED
   }
- 
-  Serial.println("Iniciando secuencia de encendido de leds . . .");
 
 }
 
@@ -94,7 +91,7 @@ void setup() {
 void loop() {
 
   /* -------------------------------------------------- *
-   *     Verificar siempre que haya conexión al broker  *
+   * LLamada a subrutina de manejo de secuencia de LEDs *
    * ---------------------------------------------------*/
   controlar_secuencia_led();
 
@@ -107,25 +104,28 @@ void loop() {
  * *******************************************************************/
  void controlar_secuencia_led() {
   /* --------------------------------------------------------
-   *     Encendido y apagado de leds cada "w" segundos 
+   *     Encendido y apagado de LEDs cada "w" segundos 
    * ------------------------------------------------------*/
   for ( int i = 0; i < num_LEDs; ++i ) {
-    timeNow = millis();
+    timeNow = millis();  // Se actualiza el tiempo actual
     if (timeNow - timeLast_LED[i] > wait_LED[i]) { 
-      /* --- Se cumplieron los "w" segundos y se actualiza
-          la variable "timeLast" para seguimiento del tiempo --- */
+      /* -------------------------------------------------------
+       *  Se cumplieron los "w" segundos para el LED "i"
+       *  Se actualiza la variable "timeLast" del LED "i"
+       *          para seguimiento del tiempo
+       * ------------------------------------------------------- */
       timeLast_LED[i] = timeNow;
 
       if (digitalRead(pin_LED[i])) {
+        /* ----------------------------------------
+         * Si el LED "i" está encendido -> APAGAR
+         * ---------------------------------------- */
         digitalWrite(pin_LED[i], LOW);
-        Serial.print("LED: ");
-        Serial.print(i);
-        Serial.println(" APAGADO");
       } else {
+        /* ----------------------------------------
+         * Si el LED "i" está apagado -> ENCENDER
+         * ---------------------------------------- */
         digitalWrite(pin_LED[i], HIGH);
-        Serial.print("LED: ");
-        Serial.print(i);
-        Serial.println(" ENCENDIDO");
       }
     }
   }
