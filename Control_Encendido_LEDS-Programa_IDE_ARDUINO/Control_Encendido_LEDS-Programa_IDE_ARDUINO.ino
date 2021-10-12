@@ -1,6 +1,6 @@
 /* ********************************************************************
  * 
- *      PROGRAMA PARA MANEJAR EL ENCENDIDO DE 3 LEDS
+ *      PROGRAMA PARA MANEJAR EL ENCENDIDO DE 4 LEDS
  *                CON LA TARJETA "ESP32-CAM"
  * 
  * ********************************************************************
@@ -99,7 +99,7 @@ void loop() {
 
 /* ********************************************************************
  *  
- *                  210 - controlar_tiempos_led()
+ *                  210 - controlar_secuencia_led()
  *                      
  * *******************************************************************/
  void controlar_secuencia_led() {
